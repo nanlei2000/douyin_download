@@ -10,6 +10,7 @@ import (
 
 func main() {
 	var isDebug bool
+	var path string
 
 	app := &cli.App{
 		Name:  "dydl",
@@ -21,6 +22,13 @@ func main() {
 				Value:       false,
 				Usage:       "toggle debug mode",
 				Destination: &isDebug,
+			},
+			&cli.StringFlag{
+				Name:        "p",
+				Aliases:     []string{"path"},
+				Value:       "./video/",
+				Usage:       "path to download",
+				Destination: &path,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -37,7 +45,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			p, err := video.Download("./video/")
+			p, err := video.Download(path)
 
 			fmt.Printf("dist file: %s/n", p)
 

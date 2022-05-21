@@ -8,12 +8,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/tidwall/gjson"
 )
 
 var (
-	patternStr       = `http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`
+	urlReg           = regexp.MustCompile(`http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`)
+	degitReg         = regexp.MustCompile(`\d+`)
 	DefaultUserAgent = `Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1`
 	relRrlStr        = `https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=`
 )
@@ -25,11 +25,7 @@ type DouYin struct {
 }
 
 func NewDouYin() *DouYin {
-	exp, err := regexp.Compile(patternStr)
-	if err != nil {
-		panic(err)
-	}
-	return &DouYin{pattern: exp, isDebug: true, log: log.Default()}
+	return &DouYin{pattern: urlReg, isDebug: true, log: log.Default()}
 }
 
 func (d *DouYin) IsDebug(debug bool) {
@@ -56,12 +52,8 @@ func (d *DouYin) GetRedirectUrl(urlStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logs.Info("请求原始内容： %s", string(body))
-	exp, err := regexp.Compile(`\d+`)
-	if err != nil {
-		return "", err
-	}
-	result := exp.FindString(string(body))
+	d.printf("请求原始内容： %s", string(body))
+	result := degitReg.FindString(string(body))
 	if result == "" {
 		return "", errors.New("解析参数失败 ->" + string(body))
 	}
