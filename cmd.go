@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -34,7 +35,7 @@ func main() {
 		Action: func(c *cli.Context) error {
 			shareUrl := ""
 			if c.NArg() > 0 {
-				shareUrl = c.Args().Get(0)
+				shareUrl = strings.Join(c.Args().Slice(), "")
 			} else {
 				return fmt.Errorf("url is required!/n")
 			}
@@ -45,10 +46,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			p, err := video.Download(path)
-
-			fmt.Printf("dist file: %s/n", p)
-
+			_, err = video.Download(path)
 			if err != nil {
 				return err
 			}
