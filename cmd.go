@@ -21,14 +21,14 @@ func main() {
 				Name:        "d",
 				Aliases:     []string{"debug"},
 				Value:       false,
-				Usage:       "toggle debug mode",
+				Usage:       "切换 debug 模式",
 				Destination: &isDebug,
 			},
 			&cli.StringFlag{
 				Name:        "p",
 				Aliases:     []string{"path"},
 				Value:       "./video/",
-				Usage:       "path to download",
+				Usage:       "文件下载路径",
 				Destination: &path,
 			},
 		},
@@ -37,7 +37,7 @@ func main() {
 			if c.NArg() > 0 {
 				shareUrl = strings.Join(c.Args().Slice(), "")
 			} else {
-				return fmt.Errorf("url is required!/n")
+				return fmt.Errorf("url is required")
 			}
 
 			dy := NewDouYin()
