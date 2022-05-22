@@ -12,8 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/beego/beego/v2/core/logs"
 )
 
 type VideoType int
@@ -64,7 +62,7 @@ func (v *Video) GetFilename() string {
 func (v *Video) Download(filename string) (string, error) {
 	defer func() {
 		if err := recover(); err != nil {
-			logs.Error("出现panic: [filename=%s] [errmsg=%s]", filename, err)
+			log.Printf("出现panic: [filename=%s] [errmsg=%s]", filename, err)
 		}
 	}()
 	filename, err := filepath.Abs(filename)
@@ -102,25 +100,25 @@ func (v *Video) Download(filename string) (string, error) {
 			log.Printf("图片数据 [image_url=%s] [image_name=%s]", image.ImageUrl, imageName)
 			req, err := http.NewRequest(http.MethodGet, image.ImageUrl, nil)
 			if err != nil {
-				logs.Error("下载图像出错 -> [play_id=%s] [image_url=%s] [errmsg=%+v]", v.PlayId, image.ImageUrl, err)
+				log.Printf("下载图像出错 -> [play_id=%s] [image_url=%s] [errmsg=%+v]", v.PlayId, image.ImageUrl, err)
 				continue
 			}
 			req.Header.Add("User-Agent", DefaultUserAgent)
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
-				logs.Error("获取图像响应出错 -> [play_id=%s] [image_url=%s] [errmsg=%+v]", v.PlayId, image.ImageUrl, err)
+				log.Printf("获取图像响应出错 -> [play_id=%s] [image_url=%s] [errmsg=%+v]", v.PlayId, image.ImageUrl, err)
 				continue
 			}
 
 			b, err := io.ReadAll(resp.Body)
 			if err != nil {
-				logs.Error("解析图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
+				log.Printf("解析图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
 				continue
 			}
 			_ = resp.Body.Close()
 			err = ioutil.WriteFile(imageName, b, 0655)
 			if err != nil {
-				logs.Error("保存图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
+				log.Printf("保存图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
 				continue
 			}
 			time.Sleep(time.Microsecond * 110)
@@ -153,7 +151,7 @@ func (v *Video) Download(filename string) (string, error) {
 func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 	uri, err := url.ParseRequestURI(urlStr)
 	if err != nil {
-		logs.Error("解析封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
+		log.Printf("解析封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
 		return "", err
 	}
 
@@ -167,7 +165,7 @@ func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 	}
 	f, err := os.Create(filename)
 	if err != nil {
-		logs.Error("创建封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
+		log.Printf("创建封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
 		return "", err
 	}
 	defer SafeClose(f)
@@ -178,7 +176,7 @@ func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 
 	req, err := http.NewRequest(http.MethodGet, urlStr, nil)
 	if err != nil {
-		logs.Error("下载封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
+		log.Printf("下载封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
 		return "", err
 	}
 	req.Header = header
@@ -189,10 +187,10 @@ func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 	defer SafeClose(resp.Body)
 	_, err = io.Copy(f, resp.Body)
 	if err != nil {
-		logs.Error("保存图片失败: %s  %+v", urlStr, err)
+		log.Printf("保存图片失败: %s  %+v", urlStr, err)
 		return "", err
 	}
-	logs.Info("保存封面成功: %s  %s", urlStr, filename)
+	log.Printf("保存封面成功: %s  %s", urlStr, filename)
 	return filename, nil
 }
 
@@ -216,7 +214,7 @@ func (v *Video) GetDownloadUrl() (string, error) {
 func (v *Video) String() string {
 	b, err := json.Marshal(v)
 	if err != nil {
-		logs.Error("编码失败 -> %s", err)
+		log.Printf("编码失败 -> %s", err)
 	} else {
 		return string(b)
 	}
