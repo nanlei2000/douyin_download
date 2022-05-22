@@ -1,1 +1,1 @@
-go build -o dydl.exe ./
+go build -ldflags="-s -w" -o dydl.exe ./
