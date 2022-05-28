@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/urfave/cli/v2"
 )
@@ -12,6 +13,7 @@ import (
 func main() {
 	var isDebug bool
 	var path string
+	var useID bool
 
 	app := &cli.App{
 		Name:  "dydl",
@@ -24,6 +26,12 @@ func main() {
 				Usage:       "切换 debug 模式",
 				Destination: &isDebug,
 			},
+			&cli.BoolFlag{
+				Name:        "id",
+				Value:       false,
+				Usage:       "使用 id 下载",
+				Destination: &useID,
+			},
 			&cli.StringFlag{
 				Name:        "p",
 				Aliases:     []string{"path"},
@@ -33,16 +41,54 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			shareUrl := ""
+			if c.NArg() == 0 {
+				return fmt.Errorf("url is required")
+			}
+
+			if useID {
+				idStr := c.Args().Get(0)
+				idList := strings.Split(idStr, ",")
+
+				var wg sync.WaitGroup
+				for _, id := range idList {
+					wg.Add(1)
+					go func(id string) {
+						defer wg.Done()
+
+						dy := NewDouYin()
+						dy.isDebug = isDebug
+						video, err := dy.Get(Source{
+							Type:    SourceType_VideoID,
+							Content: id,
+						})
+						if err != nil {
+							fmt.Printf("get video info failed, id: %s, err: %s", id, err)
+						}
+						_, err = video.Download(path)
+						if err != nil {
+							fmt.Printf("download video failed, id: %s, err: %s", id, err)
+						}
+					}(id)
+				}
+				wg.Wait()
+
+				return nil
+			}
+
+			// use shardContent
+			shareContent := ""
 			if c.NArg() > 0 {
-				shareUrl = strings.Join(c.Args().Slice(), "")
+				shareContent = strings.Join(c.Args().Slice(), "")
 			} else {
 				return fmt.Errorf("url is required")
 			}
 
 			dy := NewDouYin()
 			dy.isDebug = isDebug
-			video, err := dy.Get(shareUrl)
+			video, err := dy.Get(Source{
+				Type:    SourceType_ShardContent,
+				Content: shareContent,
+			})
 			if err != nil {
 				return err
 			}

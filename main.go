@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,6 +18,18 @@ var (
 	DefaultUserAgent = `Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1`
 	relRrlStr        = `https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=`
 )
+
+type SourceType uint
+
+const (
+	SourceType_ShardContent = iota
+	SourceType_VideoID
+)
+
+type Source struct {
+	Type    SourceType
+	Content string
+}
 
 type DouYin struct {
 	pattern *regexp.Regexp
@@ -81,15 +94,29 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 	return string(body), nil
 }
 
-func (d *DouYin) Get(shardContent string) (Video, error) {
-	urlStr := d.pattern.FindString(shardContent)
-	if urlStr == "" {
-		return Video{}, errors.New("获取视频链接失败")
+func (d *DouYin) Get(src Source) (Video, error) {
+	var rawUrlStr string
+	var err error
+	var shardContent string
+	var urlStr string
+
+	switch src.Type {
+	case SourceType_ShardContent:
+		shardContent = src.Content
+		urlStr := d.pattern.FindString(shardContent)
+		if urlStr == "" {
+			return Video{}, errors.New("获取视频链接失败")
+		}
+		rawUrlStr, err = d.GetRedirectUrl(urlStr)
+		if err != nil {
+			return Video{}, err
+		}
+	case SourceType_VideoID:
+		rawUrlStr = fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=%s", src.Content)
+	default:
+		return Video{}, fmt.Errorf("unsurported src type")
 	}
-	rawUrlStr, err := d.GetRedirectUrl(urlStr)
-	if err != nil {
-		return Video{}, err
-	}
+
 	body, err := d.GetVideoInfo(rawUrlStr)
 	if err != nil {
 		return Video{}, err
