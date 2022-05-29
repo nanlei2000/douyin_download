@@ -15,7 +15,7 @@ const MAX_CONCURRENT_NUM = 5
 func main() {
 	var verbose bool
 	var path string
-	var useID bool
+	var downloadUserPost bool
 
 	app := &cli.App{
 		Name:  "dydl",
@@ -29,10 +29,11 @@ func main() {
 				Destination: &verbose,
 			},
 			&cli.BoolFlag{
-				Name:        "id",
+				Name:        "up",
+				Aliases:     []string{"user_post"},
 				Value:       false,
-				Usage:       "使用 id 下载",
-				Destination: &useID,
+				Usage:       "下载所有发布的视频",
+				Destination: &downloadUserPost,
 			},
 			&cli.StringFlag{
 				Name:        "p",
@@ -47,9 +48,16 @@ func main() {
 				return fmt.Errorf("url is required")
 			}
 
-			if useID {
-				idStr := c.Args().Get(0)
-				idList := strings.Split(idStr, ",")
+			// https://www.douyin.com/user/MS4wLjABAAAAGTcyBs_MF1p2vK0QB2pUK_N3-huudY2UtA9Shw0o5N8
+			if downloadUserPost {
+				userLink := c.Args().Get(0)
+				parts := strings.Split(userLink, "/")
+				secUid := parts[len(parts)-1]
+				idList, err := GetAllVideoIDList(secUid)
+
+				if err != nil {
+					return err
+				}
 
 				c := make(chan struct{}, MAX_CONCURRENT_NUM)
 				defer close(c)
