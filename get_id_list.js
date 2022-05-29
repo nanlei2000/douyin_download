@@ -1,5 +1,4 @@
 // @ts-check
-
 function getIdList(){
     const eles  = document.getElementsByClassName("ECMy_Zdt")
     const idList = []
@@ -14,4 +13,10 @@ function getIdList(){
     return idList
 }
 
-console.log(getIdList().join())
+function main(){
+    const list = getIdList()
+    console.log(`共 ${list.length} 条`)
+    console.log(list.join())
+}
+
+main()

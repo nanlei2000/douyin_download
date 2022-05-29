@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const MAX_CONCURRENT_NUM = 4
+
 func main() {
 	var isDebug bool
 	var path string
@@ -20,10 +22,10 @@ func main() {
 		Usage: "下载抖音视频",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:        "d",
-				Aliases:     []string{"debug"},
+				Name:        "v",
+				Aliases:     []string{"verbose"},
 				Value:       false,
-				Usage:       "切换 debug 模式",
+				Usage:       "切换 verbose 模式",
 				Destination: &isDebug,
 			},
 			&cli.BoolFlag{
@@ -49,11 +51,18 @@ func main() {
 				idStr := c.Args().Get(0)
 				idList := strings.Split(idStr, ",")
 
+				c := make(chan struct{}, MAX_CONCURRENT_NUM)
+				defer close(c)
+
 				var wg sync.WaitGroup
 				for _, id := range idList {
 					wg.Add(1)
 					go func(id string) {
-						defer wg.Done()
+						c <- struct{}{}
+						defer func() {
+							wg.Done()
+							<-c
+						}()
 
 						dy := NewDouYin()
 						dy.isDebug = isDebug

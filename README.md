@@ -24,6 +24,8 @@ go build -o dydl.exe ./
 
 # 命令行参数
 ```
--d, --debug             切换 debug 模式 (default: false)
--p value, --path value  文件下载路径 (default: "./video/")
+   -v, --verbose           切换 verbose 模式 (default: false)
+   --id                    使用 id 下载 (default: false)
+   -p value, --path value  文件下载路径 (default: "./video/")
+   --help, -h              show help (default: false)
 ```
