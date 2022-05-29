@@ -1,4 +1,4 @@
-package main
+package douyin
 
 import (
 	"encoding/json"
@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/nanlei2000/douyin_download/internal/utils"
 )
 
 type VideoType int
@@ -168,7 +170,7 @@ func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 		log.Printf("创建封面文件失败: url[%s] filename[%s] %+v", urlStr, filename, err)
 		return "", err
 	}
-	defer SafeClose(f)
+	defer utils.SafeClose(f)
 
 	header := http.Header{}
 	header.Add("User-Agent", DefaultUserAgent)
@@ -184,7 +186,7 @@ func (v *Video) DownloadCover(urlStr string, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer SafeClose(resp.Body)
+	defer utils.SafeClose(resp.Body)
 	_, err = io.Copy(f, resp.Body)
 	if err != nil {
 		log.Printf("保存图片失败: %s  %+v", urlStr, err)

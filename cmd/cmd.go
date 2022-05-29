@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/nanlei2000/douyin_download/pkg/douyin"
 	"github.com/urfave/cli/v2"
 )
 
@@ -53,7 +54,7 @@ func main() {
 				userLink := c.Args().Get(0)
 				parts := strings.Split(userLink, "/")
 				secUid := parts[len(parts)-1]
-				idList, err := GetAllVideoIDList(secUid)
+				idList, err := douyin.GetAllVideoIDList(secUid)
 
 				if err != nil {
 					return err
@@ -72,10 +73,10 @@ func main() {
 							<-c
 						}()
 
-						dy := NewDouYin()
-						dy.isDebug = verbose
-						video, err := dy.Get(Source{
-							Type:    SourceType_VideoID,
+						dy := douyin.NewDouYin()
+						dy.IsDebug(verbose)
+						video, err := dy.Get(douyin.Source{
+							Type:    douyin.SourceType_VideoID,
 							Content: id,
 						})
 						if err != nil {
@@ -100,10 +101,10 @@ func main() {
 				return fmt.Errorf("url is required")
 			}
 
-			dy := NewDouYin()
-			dy.isDebug = verbose
-			video, err := dy.Get(Source{
-				Type:    SourceType_ShardContent,
+			dy := douyin.NewDouYin()
+			dy.IsDebug(verbose)
+			video, err := dy.Get(douyin.Source{
+				Type:    douyin.SourceType_ShardContent,
 				Content: shareContent,
 			})
 			if err != nil {
