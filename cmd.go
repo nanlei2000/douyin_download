@@ -10,10 +10,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const MAX_CONCURRENT_NUM = 4
+const MAX_CONCURRENT_NUM = 5
 
 func main() {
-	var isDebug bool
+	var verbose bool
 	var path string
 	var useID bool
 
@@ -26,7 +26,7 @@ func main() {
 				Aliases:     []string{"verbose"},
 				Value:       false,
 				Usage:       "切换 verbose 模式",
-				Destination: &isDebug,
+				Destination: &verbose,
 			},
 			&cli.BoolFlag{
 				Name:        "id",
@@ -65,7 +65,7 @@ func main() {
 						}()
 
 						dy := NewDouYin()
-						dy.isDebug = isDebug
+						dy.isDebug = verbose
 						video, err := dy.Get(Source{
 							Type:    SourceType_VideoID,
 							Content: id,
@@ -93,7 +93,7 @@ func main() {
 			}
 
 			dy := NewDouYin()
-			dy.isDebug = isDebug
+			dy.isDebug = verbose
 			video, err := dy.Get(Source{
 				Type:    SourceType_ShardContent,
 				Content: shareContent,
