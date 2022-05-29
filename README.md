@@ -9,10 +9,12 @@
 
 # 编译
 ```
-go build -o dydl.exe ./
+go build -ldflags="-s -w" -o dydl.exe ./cmd/.
 ```
 
 # 使用示例
+
+## 下载单个视频
 1. 拷贝分享链接
 
 2. 执行命令
@@ -20,7 +22,16 @@ go build -o dydl.exe ./
 .\dydl.exe "4.10 tRK:/ 怎么泡男孩子啊，多少水温合适啊%%微胖女生 %%rap版呜呼卡点舞  https://v.douyin.com/F4vTT79/ 复制此链接，打开Dou音搜索，直接观看视频！"
 
 2022/05/22 04:06:03 文件名： [filename=D:\go_dev\douyi_download\video\一栗小莎子_1235234024\6947610987423911206.mp4]
+
 ```
+## 下载主页所有作品
+1. 拷贝网页版抖音主页链接，如 https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
+
+2. 执行命令
+```
+.\dydl.exe -up https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
+```
+
 
 # 命令行参数
 ```

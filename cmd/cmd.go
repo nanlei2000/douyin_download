@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -49,11 +50,20 @@ func main() {
 				return fmt.Errorf("url is required")
 			}
 
-			// https://www.douyin.com/user/MS4wLjABAAAAGTcyBs_MF1p2vK0QB2pUK_N3-huudY2UtA9Shw0o5N8
+			// https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
 			if downloadUserPost {
 				userLink := c.Args().Get(0)
-				parts := strings.Split(userLink, "/")
+				url, err := url.Parse(userLink)
+				if err != nil {
+					return err
+				}
+				parts := strings.Split(url.Path, "/")
 				secUid := parts[len(parts)-1]
+
+				if len(secUid) == 0 {
+					return fmt.Errorf("url is invalid")
+				}
+
 				idList, err := douyin.GetAllVideoIDList(secUid)
 
 				if err != nil {
