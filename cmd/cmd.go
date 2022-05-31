@@ -24,13 +24,6 @@ func main() {
 		Usage: "下载抖音视频",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:        "v",
-				Aliases:     []string{"verbose"},
-				Value:       false,
-				Usage:       "切换 verbose 模式",
-				Destination: &verbose,
-			},
-			&cli.BoolFlag{
 				Name:        "up",
 				Aliases:     []string{"user_post"},
 				Value:       false,
@@ -43,6 +36,13 @@ func main() {
 				Value:       "./video/",
 				Usage:       "文件下载路径",
 				Destination: &path,
+			},
+			&cli.BoolFlag{
+				Name:        "v",
+				Aliases:     []string{"verbose"},
+				Value:       false,
+				Usage:       "切换 verbose 模式",
+				Destination: &verbose,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -70,6 +70,9 @@ func main() {
 					return err
 				}
 
+				dy := douyin.NewDouYin()
+				dy.IsDebug(verbose)
+
 				c := make(chan struct{}, MAX_CONCURRENT_NUM)
 				defer close(c)
 
@@ -83,8 +86,6 @@ func main() {
 							<-c
 						}()
 
-						dy := douyin.NewDouYin()
-						dy.IsDebug(verbose)
 						video, err := dy.Get(douyin.Source{
 							Type:    douyin.SourceType_VideoID,
 							Content: id,

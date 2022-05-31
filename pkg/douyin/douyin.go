@@ -14,7 +14,7 @@ import (
 
 var (
 	urlReg           = regexp.MustCompile(`http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`)
-	degitReg         = regexp.MustCompile(`\d+`)
+	digitReg         = regexp.MustCompile(`\d+`)
 	DefaultUserAgent = `Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1`
 	relRrlStr        = `https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=`
 )
@@ -66,7 +66,7 @@ func (d *DouYin) GetRedirectUrl(urlStr string) (string, error) {
 		return "", err
 	}
 	d.printf("请求原始内容： %s", string(body))
-	result := degitReg.FindString(string(body))
+	result := digitReg.FindString(string(body))
 	if result == "" {
 		return "", errors.New("解析参数失败 ->" + string(body))
 	}
@@ -114,7 +114,7 @@ func (d *DouYin) Get(src Source) (Video, error) {
 	case SourceType_VideoID:
 		rawUrlStr = fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=%s", src.Content)
 	default:
-		return Video{}, fmt.Errorf("unsurported src type")
+		return Video{}, fmt.Errorf("unsupported src type")
 	}
 
 	body, err := d.GetVideoInfo(rawUrlStr)
