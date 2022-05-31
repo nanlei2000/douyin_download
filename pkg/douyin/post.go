@@ -13,7 +13,7 @@ import (
 // 'https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=MS4wLjABAAAAF0HqDm-8U9TiT_9AfqqPGiNbrP0c93AdB3_oRG7Em_Q&count=35&max_cursor=0&aid=1128&_signature=PDHVOQAAXMfFyj02QEpGaDwx1S&dytk=' % (
 // 	self.mode, self.sec, str(self.count), max_cursor)
 
-func GetAllVideoIDList(secUid string) ([]string, error) {
+func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 	init := true
 	cursor := 0
 	count := 35

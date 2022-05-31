@@ -60,7 +60,7 @@ func (v *Video) GetFilename() string {
 	return v.VideoId + ".mp4"
 }
 
-// Download 下载视频文件到指定目录
+// Download 下载视频、图文到文件到指定目录，返回视频地址（图文为背景音乐视频地址）
 func (v *Video) Download(filename string) (string, error) {
 	defer func() {
 		if err := recover(); err != nil {

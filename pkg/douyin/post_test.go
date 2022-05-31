@@ -6,7 +6,8 @@ import (
 )
 
 func TestGetAllVideoIDList(t *testing.T) {
-	list, err := GetAllVideoIDList("MS4wLjABAAAAF0HqDm-8U9TiT_9AfqqPGiNbrP0c93AdB3_oRG7Em_Q")
+	dy := DouYin{}
+	list, err := dy.GetAllVideoIDList("MS4wLjABAAAAF0HqDm-8U9TiT_9AfqqPGiNbrP0c93AdB3_oRG7Em_Q")
 
 	if err != nil {
 		t.Fatalf("err: %s", err)
