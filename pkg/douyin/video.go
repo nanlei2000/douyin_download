@@ -99,6 +99,10 @@ func (v *Video) Download(filename string) (string, error) {
 			imageId := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(image.ImageId, "//", ""), "\\\\", "/"), "/", "-")
 			imageName := filepath.Join(imagePath, imageId+ext)
 
+			if _, err := os.Stat(imageName); !os.IsNotExist(err) {
+				log.Printf("图片本地已存在，跳过下载 [image_name=%s]", imageName)
+			}
+
 			log.Printf("图片数据 [image_url=%s] [image_name=%s]", image.ImageUrl, imageName)
 			req, err := http.NewRequest(http.MethodGet, image.ImageUrl, nil)
 			if err != nil {
@@ -128,6 +132,11 @@ func (v *Video) Download(filename string) (string, error) {
 		//如果是图文，需要将音频和图像放入一个目录
 		filename = filepath.Join(imagePath, filepath.Base(filename))
 	}
+
+	if _, err := os.Stat(filename); !os.IsNotExist(err) {
+		log.Printf("视频本地已存在，[filename=%s]", filename)
+	}
+
 	req, err := http.NewRequest(http.MethodGet, v.PlayAddr, nil)
 	if err != nil {
 		return "", err
