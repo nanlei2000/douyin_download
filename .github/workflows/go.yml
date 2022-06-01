@@ -20,6 +20,3 @@ jobs:
 
     - name: Build
       run: go build -ldflags="-s -w" -o dydl ./cmd/.
-
-    - name: Test
-      run: go test -v ./...
