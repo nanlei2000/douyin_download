@@ -1,4 +1,4 @@
-name: Release cmd/osrm-files-extractor
+name: Release cmd/dydl
 
 on: 
   release:
@@ -11,7 +11,7 @@ env:
 
 jobs:
   releases-matrix:
-    name: Release cmd/osrm-files-extractor
+    name: Release dydl
     runs-on: ubuntu-latest
     strategy:
       matrix:
