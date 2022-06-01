@@ -19,7 +19,7 @@ jobs:
         go-version: 1.18
 
     - name: Build
-      run: go build -o dydl -v ./...
+      run: go build -ldflags="-s -w" -o dydl ./cmd/.
 
     - name: Test
       run: go test -v ./...
