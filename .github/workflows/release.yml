@@ -1,42 +1,37 @@
-name: goreleaser
+name: Release cmd/osrm-files-extractor
 
-on:
-  push:
-    # run only against tags
-    tags:
-      - '*'
+on: 
+  release:
+    types: [created]
 
-permissions:
-  contents: write
-  # packages: write
-  # issues: write
+env:
+  CMD_PATH: ./cmd
+  BINARY_NAME: dydl
+
 
 jobs:
-  goreleaser:
+  releases-matrix:
+    name: Release cmd/osrm-files-extractor
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      -
-        name: Fetch all tags
-        run: git fetch --force --tags
-      -
-        name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.18
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
-          distribution: goreleaser
-          version: latest
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
-          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+    - uses: actions/checkout@v2
+
+    - name: Set APP_VERSION env
+      run: echo APP_VERSION=$(basename ${GITHUB_REF}) >> ${GITHUB_ENV}
+    - name: Set BUILD_TIME env
+      run: echo BUILD_TIME=$(date --iso-8601=seconds) >> ${GITHUB_ENV}
+    - name: Environment Printer
+      uses: managedkaos/print-env@v1.0
+
+    - uses: wangyoucao577/go-release-action@v1.4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        project_path: "${{ env.CMD_PATH }}"
+        binary_name: "${{ env.BINARY_NAME }}"
+        ldflags: -s -w
