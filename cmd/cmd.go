@@ -20,6 +20,7 @@ func main() {
 	var verbose bool
 	var path string
 	var downloadUserPost bool
+	var weiboMode bool
 
 	app := &cli.App{
 		Name:  "dydl",
@@ -31,6 +32,13 @@ func main() {
 				Value:       false,
 				Usage:       "下载所有发布的视频",
 				Destination: &downloadUserPost,
+			},
+			&cli.BoolFlag{
+				Name:        "wb",
+				Aliases:     []string{"weibo"},
+				Value:       false,
+				Usage:       "下载微博图片",
+				Destination: &weiboMode,
 			},
 			&cli.StringFlag{
 				Name:        "p",

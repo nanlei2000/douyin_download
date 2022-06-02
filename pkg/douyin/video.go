@@ -61,22 +61,22 @@ func (v *Video) GetFilename() string {
 }
 
 // Download 下载视频、图文到文件到指定目录，返回视频地址（图文为背景音乐视频地址）
-func (v *Video) Download(filename string) (path string, err error) {
+func (v *Video) Download(distDir string) (path string, err error) {
 	defer func() {
 		if pErr := recover(); pErr != nil {
-			log.Printf("出现panic: [filename=%s] [errmsg=%s]", filename, err)
+			log.Printf("出现panic: [filename=%s] [errmsg=%s]", distDir, err)
 			err = fmt.Errorf("%s", pErr)
 		}
 	}()
-	filename, err = filepath.Abs(filename)
+	distDir, err = filepath.Abs(distDir)
 	if err != nil {
-		log.Printf("获取报错地址失败 [filename=%s] [error=%+v]", filename, err)
+		log.Printf("获取报错地址失败 [filename=%s] [error=%+v]", distDir, err)
 		return "", err
 	}
 	folderName := fmt.Sprintf("%s_%s", v.Author.Nickname, v.Author.ShortId)
-	filename = filepath.Join(filename, folderName, v.GetFilename())
-	log.Printf("文件名： [filename=%s]", filename)
-	dir := filepath.Dir(filename)
+	distDir = filepath.Join(distDir, folderName, v.GetFilename())
+	log.Printf("文件名： [filename=%s]", distDir)
+	dir := filepath.Dir(distDir)
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
@@ -131,11 +131,11 @@ func (v *Video) Download(filename string) (path string, err error) {
 			time.Sleep(time.Microsecond * 110)
 		}
 		//如果是图文，需要将音频和图像放入一个目录
-		filename = filepath.Join(imagePath, filepath.Base(filename))
+		distDir = filepath.Join(imagePath, filepath.Base(distDir))
 	}
 
-	if _, err := os.Stat(filename); !os.IsNotExist(err) {
-		log.Printf("视频本地已存在，[filename=%s]", filename)
+	if _, err := os.Stat(distDir); !os.IsNotExist(err) {
+		log.Printf("视频本地已存在，[filename=%s]", distDir)
 	}
 
 	req, err := http.NewRequest(http.MethodGet, v.PlayAddr, nil)
@@ -149,14 +149,14 @@ func (v *Video) Download(filename string) (path string, err error) {
 	}
 	defer resp.Body.Close()
 
-	f1, err := os.Create(filename)
+	f1, err := os.Create(distDir)
 	if err != nil {
-		log.Printf("创建文件失败 [filename=%s] [errmsg=%+v]", filename, err)
+		log.Printf("创建文件失败 [filename=%s] [errmsg=%+v]", distDir, err)
 		return "", err
 	}
 	defer f1.Close()
 	_, err = io.Copy(f1, resp.Body)
-	return filename, err
+	return distDir, err
 }
 
 // DownloadCover 下载封面文件
