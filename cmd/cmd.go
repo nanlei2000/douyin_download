@@ -30,7 +30,7 @@ func main() {
 				Name:        "up",
 				Aliases:     []string{"user_post"},
 				Value:       false,
-				Usage:       "下载所有发布的视频",
+				Usage:       "下载所有发布的内容",
 				Destination: &downloadUserPost,
 			},
 			&cli.BoolFlag{
@@ -58,6 +58,10 @@ func main() {
 		Action: func(c *cli.Context) error {
 			if c.NArg() == 0 {
 				return fmt.Errorf("url is required")
+			}
+
+			if weiboMode {
+				return HandleWeiboCmd(c.Args().Get(0), downloadUserPost, path)
 			}
 
 			dy := douyin.NewDouYin()
