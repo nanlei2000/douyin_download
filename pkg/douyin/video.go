@@ -61,13 +61,14 @@ func (v *Video) GetFilename() string {
 }
 
 // Download 下载视频、图文到文件到指定目录，返回视频地址（图文为背景音乐视频地址）
-func (v *Video) Download(filename string) (string, error) {
+func (v *Video) Download(filename string) (path string, err error) {
 	defer func() {
-		if err := recover(); err != nil {
+		if pErr := recover(); pErr != nil {
 			log.Printf("出现panic: [filename=%s] [errmsg=%s]", filename, err)
+			err = fmt.Errorf("%s", pErr)
 		}
 	}()
-	filename, err := filepath.Abs(filename)
+	filename, err = filepath.Abs(filename)
 	if err != nil {
 		log.Printf("获取报错地址失败 [filename=%s] [error=%+v]", filename, err)
 		return "", err

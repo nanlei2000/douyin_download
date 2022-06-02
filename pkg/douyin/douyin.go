@@ -95,9 +95,14 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 	return string(body), nil
 }
 
-func (d *DouYin) Get(src Source) (Video, error) {
+func (d *DouYin) Get(src Source) (v Video, err error) {
+	defer func() {
+		if pErr := recover(); pErr != nil {
+			log.Printf("[DouYin.Get]panic, src: %#v,err: %s", src, err)
+			err = fmt.Errorf("%s", pErr)
+		}
+	}()
 	var rawUrlStr string
-	var err error
 	var shardContent string
 	var urlStr string
 
