@@ -10,9 +10,6 @@ import (
 	"github.com/nanlei2000/douyin_download/pkg/model"
 )
 
-// 'https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=MS4wLjABAAAAF0HqDm-8U9TiT_9AfqqPGiNbrP0c93AdB3_oRG7Em_Q&count=35&max_cursor=0&aid=1128&_signature=PDHVOQAAXMfFyj02QEpGaDwx1S&dytk=' % (
-// 	self.mode, self.sec, str(self.count), max_cursor)
-
 func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 	init := true
 	cursor := 0
@@ -51,7 +48,7 @@ func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 		err = json.Unmarshal(body, &userPost)
 
 		if err != nil {
-			log.Printf("fail to unmarshal json, secUid: %s, err: %s", secUid, err)
+			log.Printf("fail to unmarshal json, secUid: %s, err: %s, body: %s", secUid, err, body)
 			return []string{}, err
 		}
 

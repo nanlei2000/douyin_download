@@ -1,6 +1,7 @@
 package douyin
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -9,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/tidwall/gjson"
+	iteminfo "github.com/nanlei2000/douyin_download/pkg/model/item_info"
 )
 
 var (
@@ -123,9 +124,15 @@ func (d *DouYin) Get(src Source) (Video, error) {
 	}
 	d.printf("获取抖音视频成功 -> [resp=%s]", body)
 
-	item := gjson.Get(body, "item_list.0")
+	var info iteminfo.ItemInfo
 
-	res := item.Get("video.play_addr.url_list.0")
+	err = json.Unmarshal([]byte(body), &info)
+
+	if err != nil {
+		return Video{}, err
+	}
+
+	item := info.ItemList[0]
 	video := Video{
 		RawLink:      shardContent,
 		VideoRawAddr: urlStr,
@@ -133,94 +140,43 @@ func (d *DouYin) Get(src Source) (Video, error) {
 		Images:       []ImageItem{},
 	}
 
-	if !res.Exists() {
-		d.printf("解析抖音视频地址失败 -> [resp=%s]", body)
-		return video, errors.New("未找到视频地址 ->" + urlStr)
-	}
+	video.PlayAddr = strings.ReplaceAll(item.Video.PlayAddr.URLList[0], "playwm", "play")
 
-	video.PlayAddr = strings.ReplaceAll(res.Str, "playwm", "play")
-	res = item.Get("duration")
-	d.printf("视频时长 [duration=%s]", res.Raw)
 	//获取播放时长，视频有播放时长，图文类无播放时长
-	if res.Exists() && res.Raw != "0" {
+	if item.Duration != 0 {
 		video.VideoType = VideoPlayType
 	} else {
 		video.VideoType = ImagePlayType
-		res = item.Get("images")
-		if res.Exists() && res.IsArray() {
-			for _, image := range res.Array() {
-				imageRes := image.Get("url_list.0")
-				if imageRes.Exists() {
-					video.Images = append(video.Images, ImageItem{
-						ImageUrl: imageRes.Str,
-						ImageId:  image.Get("uri").Str,
-					})
-				}
-			}
+		images := item.Images
+		for _, image := range images {
+			imageRes := image.URLList[0]
+			video.Images = append(video.Images, ImageItem{
+				ImageUrl: imageRes,
+				ImageId:  image.URI,
+			})
 		}
 	}
 	//获取播放地址
-	res = item.Get("video.play_addr.uri")
-	if res.Exists() {
-		video.PlayId = res.Str
-	}
+	video.PlayId = item.Video.PlayAddr.URI
 	//获取视频唯一id
-	res = item.Get("aweme_id")
-	d.printf("唯一ID [aweme_id=%s]", res.Raw)
-	if res.Exists() {
-		video.VideoId = res.Str
-	}
+	video.VideoId = item.AwemeID
 	//获取封面
-	res = item.Get("video.cover.url_list.0")
-	if res.Exists() {
-		video.Cover = res.Str
-	}
+	video.Cover = item.Video.Cover.URLList[0]
 	//获取原始封面
-	res = item.Get("video.origin_cover.url_list.0")
-	if res.Exists() {
-		video.OriginCover = res.Str
-	}
-	res = item.Get("video.origin_cover.url_list")
-	if res.Exists() {
-		res.ForEach(func(key, value gjson.Result) bool {
-			video.OriginCoverList = append(video.OriginCoverList, value.Str)
-			return true
-		})
-		d.printf("所有原始封面： %+v", video.OriginCoverList)
-	}
+	video.OriginCover = item.Video.OriginCover.URLList[0]
 	//获取音乐地址
-	res = item.Get("music.play_url.url_list.0")
-	if res.Exists() {
-		video.MusicAddr = res.Str
-	}
-	//获取作者id
-	res = item.Get("author.uid")
-	if res.Exists() {
-		video.Author.Id = res.Str
-	}
-	res = item.Get("author.short_id")
-	if res.Exists() {
-		video.Author.ShortId = res.Str
-	}
-	res = item.Get("author.nickname")
-	if res.Exists() {
-		video.Author.Nickname = res.Str
-	}
-	res = item.Get("author.signature")
-	if res.Exists() {
-		video.Author.Signature = res.Str
-	}
+	video.MusicAddr = item.Music.PlayURL.URLList[0]
+	//获取作者信息
+	video.Author.Id = item.Author.Uid
+	video.Author.ShortId = item.Author.ShortID
+	video.Author.Nickname = item.Author.Nickname
+	video.Author.Signature = item.Author.Signature
 	//获取视频描述
-	res = item.Get("desc")
-	if res.Exists() {
-		video.Desc = res.Str
-	}
-	//回获取作者大头像
-	res = item.Get("author.avatar_larger.url_list.0")
-	if res.Exists() {
-		video.Author.AvatarLarger = res.Str
-	}
+	video.Desc = item.Desc
+	//获取作者大头像
+	video.Author.AvatarLarger = item.Author.AvatarLarger.URLList[0]
 	d.printf("解析后数据 [video=%s]", video.String())
+
 	return video, nil
 }
 
