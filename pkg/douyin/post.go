@@ -38,6 +38,8 @@ func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 		}
 		defer resp.Body.Close()
 
+		d.printf("resp status: %s", resp.Status)
+
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Printf("fail to read body, secUid: %s, err: %s", secUid, err)

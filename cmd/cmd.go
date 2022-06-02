@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/url"
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/nanlei2000/douyin_download/pkg/douyin"
 	"github.com/urfave/cli/v2"
@@ -85,6 +87,9 @@ func main() {
 							wg.Done()
 							<-c
 						}()
+
+						ran := rand.Int31n(100)
+						time.Sleep(time.Duration(ran) * time.Millisecond)
 
 						video, err := dy.Get(douyin.Source{
 							Type:    douyin.SourceType_VideoID,

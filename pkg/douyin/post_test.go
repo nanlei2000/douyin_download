@@ -6,7 +6,9 @@ import (
 )
 
 func TestGetAllVideoIDList(t *testing.T) {
-	dy := DouYin{}
+	dy := NewDouYin()
+	dy.isDebug = true
+
 	list, err := dy.GetAllVideoIDList("MS4wLjABAAAAF0HqDm-8U9TiT_9AfqqPGiNbrP0c93AdB3_oRG7Em_Q")
 
 	if err != nil {

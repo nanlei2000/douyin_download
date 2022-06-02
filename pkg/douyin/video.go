@@ -78,14 +78,14 @@ func (v *Video) Download(filename string) (string, error) {
 	dir := filepath.Dir(filename)
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0655); err != nil {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return "", err
 		}
 	}
 	//如果是图片类，则将图片下载到指定目录
 	if v.VideoType == ImagePlayType {
 		imagePath := filepath.Join(dir, v.VideoId)
-		if err := os.MkdirAll(imagePath, 0655); err != nil {
+		if err := os.MkdirAll(imagePath, os.ModePerm); err != nil {
 			log.Printf("创建目录失败 [path=%s]", imagePath)
 		}
 		for _, image := range v.Images {
@@ -122,7 +122,7 @@ func (v *Video) Download(filename string) (string, error) {
 				continue
 			}
 			_ = resp.Body.Close()
-			err = ioutil.WriteFile(imageName, b, 0655)
+			err = ioutil.WriteFile(imageName, b, os.ModePerm)
 			if err != nil {
 				log.Printf("保存图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
 				continue
