@@ -53,6 +53,9 @@ func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 			log.Printf("fail to unmarshal json, secUid: %s, err: %s, body: %s", secUid, err, body)
 			return []string{}, err
 		}
+		if userPost.StatusCode != 0 {
+			return []string{}, fmt.Errorf("resp err, resp: %s", body)
+		}
 
 		init = false
 		cursor = int(userPost.MaxCursor)

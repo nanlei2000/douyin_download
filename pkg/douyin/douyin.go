@@ -136,6 +136,9 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 	if err != nil {
 		return Video{}, err
 	}
+	if info.StatusCode != 0 {
+		return Video{}, fmt.Errorf("resp err, resp: %s", body)
+	}
 
 	item := info.ItemList[0]
 	video := Video{
