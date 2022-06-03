@@ -1,6 +1,8 @@
 package weibo
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestDownLoadShowPics(t *testing.T) {
 	w := Weibo{}

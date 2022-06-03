@@ -1,6 +1,7 @@
 package weibo
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -87,18 +88,24 @@ func (w *Weibo) downloadPics(pics []string, distDir string) error {
 		go func(p string) (err error) {
 			c <- struct{}{}
 			defer func() {
-				wg.Done()
+				if pErr := recover(); pErr != nil {
+					err = fmt.Errorf("panic: err: %v", pErr)
+				}
 				if err != nil {
 					lastErr = err
 				}
 				<-c
+				wg.Done()
 			}()
 
 			// 防止频控
 			ran := rand.Int31n(100)
 			time.Sleep(time.Duration(ran) * time.Millisecond)
 
-			req, err := http.NewRequest("GET", p, nil)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer cancel()
+
+			req, err := http.NewRequestWithContext(ctx, "GET", p, nil)
 			if err != nil {
 				return err
 			}
