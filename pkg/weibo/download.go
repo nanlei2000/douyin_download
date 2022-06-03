@@ -5,19 +5,23 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/nanlei2000/douyin_download/internal/utils"
 )
 
+const MAX_CONCURRENT_NUM = 5
+
 type DownLoadType int16
 
 const (
-	Show = iota
-	ImageWall
+	DownLoadType_Show DownLoadType = iota
+	DownLoadType_ImageWall
 )
 
 type Source struct {
@@ -25,11 +29,11 @@ type Source struct {
 	Link string
 }
 
-func (w *Weibo) DownLoadShowPics(src Source, distDir string) (err error) {
+func (w *Weibo) DownLoad(src Source, distDir string) (err error) {
 	var imageSet ImageSet
 
 	switch src.Type {
-	case Show:
+	case DownLoadType_Show:
 		id, err := utils.GetLastURLPath(src.Link)
 		if err != nil {
 			return err
@@ -38,7 +42,7 @@ func (w *Weibo) DownLoadShowPics(src Source, distDir string) (err error) {
 		if err != nil {
 			return err
 		}
-	case ImageWall:
+	case DownLoadType_ImageWall:
 		uid, err := utils.GetLastURLPath(src.Link)
 		if err != nil {
 			return err
@@ -69,45 +73,71 @@ func (w *Weibo) DownLoadShowPics(src Source, distDir string) (err error) {
 		}
 	}
 
+	return w.downloadPics(pics, distDir)
+}
+
+func (w *Weibo) downloadPics(pics []string, distDir string) error {
+	var wg sync.WaitGroup
+	c := make(chan struct{}, MAX_CONCURRENT_NUM)
+	defer close(c)
+
+	var lastErr error
 	for _, p := range pics {
-		req, err := http.NewRequest("GET", p, nil)
-		if err != nil {
-			return err
-		}
-		err = w.setupHeaders(req, false)
-		if err != nil {
-			return err
-		}
+		wg.Add(1)
+		go func(p string) (err error) {
+			c <- struct{}{}
+			defer func() {
+				wg.Done()
+				if err != nil {
+					lastErr = err
+				}
+				<-c
+			}()
 
-		lastPath, err := utils.GetLastURLPath(p)
-		if err != nil {
-			return err
-		}
-		filePath := filepath.Join(distDir, lastPath)
+			// 防止频控
+			ran := rand.Int31n(100)
+			time.Sleep(time.Duration(ran) * time.Millisecond)
 
-		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-			log.Printf("文件本地已存在, filePath: %s", filePath)
-			continue
-		}
+			req, err := http.NewRequest("GET", p, nil)
+			if err != nil {
+				return err
+			}
+			err = w.setupHeaders(req, false)
+			if err != nil {
+				return err
+			}
 
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return err
-		}
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf("解析图像出错 -> [src=%v] [image_url=%s] [err=%s]", src, p, err)
-			continue
-		}
-		_ = resp.Body.Close()
-		err = ioutil.WriteFile(filePath, b, os.ModePerm)
-		if err != nil {
-			log.Printf("解析图像出错 -> [src=%v] [image_url=%s] [err=%s]", src, p, err)
-			continue
-		}
-		log.Printf("写入图片成功, filePath: %s", filePath)
-		time.Sleep(time.Microsecond * 100)
+			lastPath, err := utils.GetLastURLPath(p)
+			if err != nil {
+				return err
+			}
+			filePath := filepath.Join(distDir, lastPath)
+
+			if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+				log.Printf("文件本地已存在, filePath: %s", filePath)
+				return nil
+			}
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return err
+			}
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				log.Printf("解析图像出错 -> [image_url=%s] [err=%s]", p, err)
+				return err
+			}
+			_ = resp.Body.Close()
+			err = ioutil.WriteFile(filePath, b, os.ModePerm)
+			if err != nil {
+				log.Printf("解析图像出错 -> [image_url=%s] [err=%s]", p, err)
+				return err
+			}
+			log.Printf("写入图片成功, filePath: %s", filePath)
+
+			return nil
+		}(p)
 	}
-
-	return nil
+	wg.Wait()
+	return lastErr
 }

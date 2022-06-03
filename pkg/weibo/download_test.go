@@ -4,8 +4,8 @@ import "testing"
 
 func TestDownLoadShowPics(t *testing.T) {
 	w := Weibo{}
-	err := w.DownLoadShowPics(Source{
-		Type: Show,
+	err := w.DownLoad(Source{
+		Type: DownLoadType_Show,
 		Link: "https://weibo.com/2286073303/LvhJiA6Fh",
 	}, "../../weibo/")
 
@@ -17,8 +17,8 @@ func TestDownLoadShowPics(t *testing.T) {
 func TestDownLoadImageWallPics(t *testing.T) {
 	t.SkipNow()
 	w := Weibo{}
-	err := w.DownLoadShowPics(Source{
-		Type: ImageWall,
+	err := w.DownLoad(Source{
+		Type: DownLoadType_ImageWall,
 		Link: "https://weibo.com/u/2286073303?tabtype=album",
 	}, "../../weibo/")
 
