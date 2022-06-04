@@ -1,10 +1,8 @@
 package weibo
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -16,7 +14,10 @@ import (
 	"github.com/nanlei2000/douyin_download/internal/utils"
 )
 
-const MAX_CONCURRENT_NUM = 5
+const (
+	MAX_CONCURRENT_NUM = 3
+	RETRY_COUNT        = 5
+)
 
 type DownLoadType int16
 
@@ -85,65 +86,80 @@ func (w *Weibo) downloadPics(pics []string, distDir string) error {
 	var lastErr error
 	for _, p := range pics {
 		wg.Add(1)
-		go func(p string) (err error) {
-			c <- struct{}{}
-			defer func() {
-				if pErr := recover(); pErr != nil {
-					err = fmt.Errorf("panic: err: %v", pErr)
-				}
+		p := p
+		go func() (err error) {
+			run := func() (err error) {
+				c <- struct{}{}
+				defer func() {
+					if pErr := recover(); pErr != nil {
+						err = fmt.Errorf("panic: err: %v", pErr)
+					}
+					if err != nil {
+						log.Printf("解析图像出错 -> [image_url=%s] [err=%s]", p, err)
+						lastErr = err
+					}
+					<-c
+					wg.Done()
+				}()
+
+				// 防止频控
+				ran := rand.Int31n(100)
+				time.Sleep(time.Duration(ran) * time.Millisecond)
+
+				req, err := http.NewRequest("GET", p, nil)
 				if err != nil {
-					lastErr = err
+					return err
 				}
-				<-c
-				wg.Done()
-			}()
+				err = w.setupHeaders(req, false)
+				if err != nil {
+					return err
+				}
 
-			// 防止频控
-			ran := rand.Int31n(100)
-			time.Sleep(time.Duration(ran) * time.Millisecond)
+				lastPath, err := utils.GetLastURLPath(p)
+				if err != nil {
+					return err
+				}
+				filePath := filepath.Join(distDir, lastPath)
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-			defer cancel()
+				if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+					log.Printf("文件本地已存在, filePath: %s", filePath)
+					return nil
+				}
 
-			req, err := http.NewRequestWithContext(ctx, "GET", p, nil)
-			if err != nil {
-				return err
-			}
-			err = w.setupHeaders(req, false)
-			if err != nil {
-				return err
-			}
+				resp, err := http.DefaultClient.Do(req)
+				if err != nil {
+					return err
+				}
+				defer resp.Body.Close()
 
-			lastPath, err := utils.GetLastURLPath(p)
-			if err != nil {
-				return err
-			}
-			filePath := filepath.Join(distDir, lastPath)
+				f, err := os.Create(filePath)
+				if err != nil {
+					return err
+				}
 
-			if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-				log.Printf("文件本地已存在, filePath: %s", filePath)
+				_, err = io.Copy(f, resp.Body)
+				if err != nil {
+					return err
+				}
+
+				if err != nil {
+					return err
+				}
+				log.Printf("写入图片成功, filePath: %s", filePath)
+
 				return nil
 			}
 
-			resp, err := http.DefaultClient.Do(req)
-			if err != nil {
-				return err
+			for i := 0; i < RETRY_COUNT; i++ {
+				err = run()
+				if err != nil {
+					continue
+				}
+				return nil
 			}
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				log.Printf("解析图像出错 -> [image_url=%s] [err=%s]", p, err)
-				return err
-			}
-			_ = resp.Body.Close()
-			err = ioutil.WriteFile(filePath, b, os.ModePerm)
-			if err != nil {
-				log.Printf("解析图像出错 -> [image_url=%s] [err=%s]", p, err)
-				return err
-			}
-			log.Printf("写入图片成功, filePath: %s", filePath)
 
-			return nil
-		}(p)
+			return err
+		}()
 	}
 	wg.Wait()
 	return lastErr
