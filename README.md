@@ -3,7 +3,7 @@
 [![Go](https://github.com/nanlei2000/douyi_download/actions/workflows/go.yml/badge.svg)](https://github.com/nanlei2000/douyi_download/actions/workflows/go.yml)
 [![Release cmd/dydl](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml/badge.svg)](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml)
 
-通过分享链接，下载抖音无水印视频的命令行工具
+下载抖音无水印视频、图片，微博原图的命令行工具
 
 ## 免责声明
 
