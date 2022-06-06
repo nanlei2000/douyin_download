@@ -59,10 +59,11 @@ chmod +x ./dydl
 
 - 链接类型：主页链接
 - 命令示例：`.\dydl.exe -wb -up https://weibo.com/u/2286073303`
+- 注意：需要 `WB_COOKIE` 环境变量
 
-## 微博 cookie
+## 微博 cookie 环境变量
 
-“下载微博主页相册所有原图”功能需要微博 cookie，在运行命令之前执行
+微博相关功能可能需要 `WB_COOKIE` 环境变量 ，登录微博网页版，拿到 cookie, 在上述命令执行之前，执行以下命令
 
 ```
 # windows powershell
@@ -70,7 +71,6 @@ $Env:WB_COOKIE = "your_weibo_cookie"
 
 # mac, linux
 export WB_COOKIE = "your_weibo_cookie"
-
 ```
 
 ## 命令行参数
