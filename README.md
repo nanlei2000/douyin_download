@@ -11,47 +11,60 @@
 - 所有视频的版权始终属于「字节跳动」
 - 严禁用于任何商业用途，如果构成侵权概不负责
 
-## 获取可执行文件
+## 功能
+
+- 下载抖音无水印视频、图集，可通过分享链接下载单个作品，也可以使用主页链接下载所有发布的作品
+- 下载微博博文、主页相册原图（有水印）
+
+## 安装
+
+### 1. 获取可执行文件
 
 前往 [release](https://github.com/nanlei2000/douyi_download/releases) 页面下载对应平台压缩包解压即可
 
-## 源码编译
+#### 源码编译
 
-除了下载已经编译好的可执行文件，你也可以自己编译，需要 go 1.18 版本或以上
+除了下载已经编译好的可执行文件，你也可以自己编译，需要 go 1.18 版本或以上，如 windows 下：
 
 ```
 go build -ldflags="-s -w" -o dydl.exe ./cmd/.
 ```
 
+### 2. 添加执行权限
+
+windows 可忽略
+
+```
+chmod +x ./dydl
+```
+
 ## 使用示例
 
-### 下载单个视频
+| 功能                     | 链接类型 | 命令                                                                                                          |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------------------------------- |
+| 下载单个抖音作品         | 分享链接 | .\dydl.exe "0.79 cNj:/ %%这座城市 https://v.douyin.com/FTdTfDw/ 复制此链接，打开 Dou 音搜索，直接观看视频！"  |
+| 下载主页所有抖音作品     | 主页链接 | .\dydl.exe -up https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1 |
+| 下载微博博文原图         | 博文链接 | .\dydl.exe -wb https://weibo.com/2286073303/LvhJiA6Fh                                                         |
+| 下载微博主页相册所有原图 | 主页链接 | .\dydl.exe -wb -up https://weibo.com/u/2286073303                                                             |
 
-1. 拷贝分享链接
+### 微博 cookie
 
-2. 执行命令
-
-```
-.\dydl.exe "4.10 tRK:/ 怎么泡男孩子啊，多少水温合适啊%%微胖女生 %%rap版呜呼卡点舞  https://v.douyin.com/F4vTT79/ 复制此链接，打开Dou音搜索，直接观看视频！"
-
-2022/05/22 04:06:03 文件名： [filename=D:\go_dev\douyi_download\video\一栗小莎子_1235234024\6947610987423911206.mp4]
-
-```
-
-### 下载主页所有作品
-
-1. 拷贝网页版抖音主页链接，如 https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
-
-2. 执行命令
+“下载微博主页相册所有原图”功能需要微博 cookie，在运行命令之前执行
 
 ```
-.\dydl.exe -up https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
+# windows powershell
+$Env:WB_COOKIE = "your_weibo_cookie"
+
+# mac, linux
+export WB_COOKIE = "your_weibo_cookie"
+
 ```
 
 ## 命令行参数
 
 ```
-   --up, --user_post       下载所有发布的视频 (default: false)
+   --up, --user_post       下载所有发布的内容 (default: false)
+   --wb, --weibo           下载微博图片 (default: false)
    -p value, --path value  文件下载路径 (default: "./video/")
    -v, --verbose           切换 verbose 模式 (default: false)
    --help, -h              show help (default: false)
