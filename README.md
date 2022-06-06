@@ -56,9 +56,9 @@ chmod +x ./dydl
 - 链接类型：博文链接
 - 命令示例：`.\dydl.exe -wb https://weibo.com/2286073303/LvhJiA6Fh`
 
-### 下载微博主页相册所有原图
+### 下载微博个人主页相册原图
 
-- 链接类型：主页链接
+- 链接类型：个人主页链接
 - 命令示例：`.\dydl.exe -wb -up https://weibo.com/u/2286073303`
 - 注意：需要 `WB_COOKIE` 环境变量
 
@@ -66,7 +66,7 @@ chmod +x ./dydl
 
 微博相关功能可能需要 `WB_COOKIE` 环境变量。登录微博网页版，按 f12 打开调试工具，切换到 network 模块，点击任意 https://weibo.com/ajax/ 路径下请求， 拿到请求头 cookie 字段，在上述命令执行之前，执行以下命令
 
-```cookiecoo
+```
 # 替换引号内的 your_weibo_cookie 为真实的 cookie
 
 # windows powershell
