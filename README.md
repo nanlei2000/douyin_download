@@ -10,7 +10,6 @@
 - 本项目纯属个人爱好创作
 - 所有视频的版权始终属于「字节跳动」
 - 严禁用于任何商业用途，如果构成侵权概不负责
-- 部分源码来自 [DouYinBot](https://github.com/lifei6671/DouYinBot), MIT license
 
 ## 获取可执行文件
 
