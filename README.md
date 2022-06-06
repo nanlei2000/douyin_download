@@ -39,6 +39,7 @@ chmod +x ./dydl
 ```
 
 ## 使用说明
+注意，非 windows 下，下述命令中，`.\dydl.exe` 需要替换为 `./dydl`
 
 ### 下载单个抖音作品
 
@@ -61,11 +62,13 @@ chmod +x ./dydl
 - 命令示例：`.\dydl.exe -wb -up https://weibo.com/u/2286073303`
 - 注意：需要 `WB_COOKIE` 环境变量
 
-## 微博 cookie 环境变量
+## `WB_COOKIE` 环境变量
 
-微博相关功能可能需要 `WB_COOKIE` 环境变量 ，登录微博网页版，拿到 cookie, 在上述命令执行之前，执行以下命令
+微博相关功能可能需要 `WB_COOKIE` 环境变量。登录微博网页版，按 f12 打开调试工具，切换到 network 模块，点击任意 https://weibo.com/ajax/ 路径下请求， 拿到请求头 cookie 字段，在上述命令执行之前，执行以下命令
 
-```
+```cookiecoo
+# 替换引号内的 your_weibo_cookie 为真实的 cookie
+
 # windows powershell
 $Env:WB_COOKIE = "your_weibo_cookie"
 
