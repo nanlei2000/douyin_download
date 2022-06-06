@@ -38,16 +38,29 @@ windows 可忽略
 chmod +x ./dydl
 ```
 
-## 使用示例
+## 使用说明
 
-| 功能                     | 链接类型 | 命令示例                                                                                |
-| ------------------------ | ----------- | ------------------------------------------------------------------ |
-| 下载单个抖音作品         | 分享链接 | .\dydl.exe "0.79 cNj:/ %%这座城市 https://v.douyin.com/FTdTfDw/ 复制此链接，打开 Dou 音搜索，直接观看视频！"  |
-| 下载主页所有抖音作品     | 主页链接 | .\dydl.exe -up https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1 |
-| 下载微博博文原图         | 博文链接 | .\dydl.exe -wb https://weibo.com/2286073303/LvhJiA6Fh                                                         |
-| 下载微博主页相册所有原图 | 主页链接 | .\dydl.exe -wb -up https://weibo.com/u/2286073303                                                             |
+### 下载单个抖音作品
 
-### 微博 cookie
+- 链接类型：分享链接
+- 命令示例：`.\dydl.exe "4.10 tRK:/ 怎么泡男孩子啊，多少水温合适啊%%微胖女生 %%rap版呜呼卡点舞 https://v.douyin.com/F4vTT79/ 复制此链接，打开Dou音搜索，直接观看视频！"`
+
+### 下载主页所有抖音作品
+
+- 链接类型：主页链接
+- 命令示例： `.\dydl.exe -up https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1`
+
+### 下载微博博文原图
+
+- 链接类型：博文链接
+- 命令示例：`.\dydl.exe -wb https://weibo.com/2286073303/LvhJiA6Fh`
+
+### 下载微博主页相册所有原图
+
+- 链接类型：主页链接
+- 命令示例：`.\dydl.exe -wb -up https://weibo.com/u/2286073303`
+
+## 微博 cookie
 
 “下载微博主页相册所有原图”功能需要微博 cookie，在运行命令之前执行
 
