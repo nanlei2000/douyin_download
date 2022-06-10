@@ -7,10 +7,10 @@ import (
 
 func TestVideo_Download(t *testing.T) {
 	dy := NewDouYin()
-	dy.isDebug = true
+	dy.isDebug = false
 	video, err := dy.Get(Source{
 		Type:    SourceType_ShardContent,
-		Content: `4.10 tRK:/ 怎么泡男孩子啊，多少水温合适啊%%微胖女生 %%rap版呜呼卡点舞  https://v.douyin.com/F4vTT79/ 复制此链接，打开Dou音搜索，直接观看视频！`,
+		Content: `8.97 tRK:/ 这条裙子是有些洋娃娃的感觉在身上的！%%穿搭 %%甜妹 %%腿 %%少女感  https://v.douyin.com/Y8dCdFC/ 复制此链接，打开Dou音搜索，直接观看视频！`,
 	})
 	if err != nil {
 		t.Fatal(err)

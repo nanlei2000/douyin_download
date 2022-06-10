@@ -98,7 +98,7 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 func (d *DouYin) Get(src Source) (v Video, err error) {
 	defer func() {
 		if pErr := recover(); pErr != nil {
-			log.Printf("[DouYin.Get]panic, src: %#v,err: %s", src, err)
+			log.Printf("[DouYin.Get]panic, src: %v,err: %v", src, pErr)
 			err = fmt.Errorf("%s", pErr)
 		}
 	}()
@@ -172,8 +172,6 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 	video.Cover = item.Video.Cover.URLList[0]
 	//获取原始封面
 	video.OriginCover = item.Video.OriginCover.URLList[0]
-	//获取音乐地址
-	video.MusicAddr = item.Music.PlayURL.URLList[0]
 	//获取作者信息
 	video.Author.Id = item.Author.Uid
 	video.Author.ShortId = item.Author.ShortID

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"net/url"
 	"strings"
@@ -10,6 +11,11 @@ import (
 
 	"github.com/nanlei2000/douyin_download/pkg/douyin"
 	"github.com/urfave/cli/v2"
+)
+
+const (
+	MAX_CONCURRENT_NUM = 2
+	RETRY_COUNT        = 5
 )
 
 func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path string) error {
@@ -41,29 +47,47 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 
 		var wg sync.WaitGroup
 		for _, id := range idList {
+			id := id
 			wg.Add(1)
-			go func(id string) {
+			go func() {
 				c <- struct{}{}
 				defer func() {
 					wg.Done()
 					<-c
 				}()
 
-				ran := rand.Int31n(100)
-				time.Sleep(time.Duration(ran) * time.Millisecond)
+				run := func() error {
+					ran := rand.Int31n(100)
+					time.Sleep(time.Duration(ran) * time.Millisecond)
 
-				video, err := dy.Get(douyin.Source{
-					Type:    douyin.SourceType_VideoID,
-					Content: id,
-				})
-				if err != nil {
-					fmt.Printf("get video info failed, id: %s, err: %s", id, err)
+					video, err := dy.Get(douyin.Source{
+						Type:    douyin.SourceType_VideoID,
+						Content: id,
+					})
+					if err != nil {
+						return fmt.Errorf("get video info failed, id: %s, err: %s", id, err)
+					}
+					_, err = video.Download(path)
+					if err != nil {
+						return fmt.Errorf("download video failed, id: %s, err: %s", id, err)
+					}
+
+					return nil
 				}
-				_, err = video.Download(path)
-				if err != nil {
-					fmt.Printf("download video failed, id: %s, err: %s", id, err)
+
+				var lastErr error
+				for i := 0; i < RETRY_COUNT; i++ {
+					if err := run(); err != nil {
+						lastErr = err
+						continue
+					}
+					break
 				}
-			}(id)
+
+				if lastErr != nil {
+					log.Printf("run fail, err: %s", lastErr)
+				}
+			}()
 		}
 		wg.Wait()
 

@@ -8,8 +8,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const MAX_CONCURRENT_NUM = 5
-
 func main() {
 	var verbose bool
 	var path string

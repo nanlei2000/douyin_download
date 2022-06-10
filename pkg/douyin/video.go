@@ -34,7 +34,6 @@ type Video struct {
 	Cover           string   `json:"cover"`
 	OriginCover     string   `json:"origin_cover"`
 	OriginCoverList []string `json:"origin_cover_list"`
-	MusicAddr       string   `json:"music_addr"`
 	Desc            string   `json:"desc"`
 	RawLink         string   `json:"raw_link"`
 	Author          struct {
@@ -75,9 +74,7 @@ func (v *Video) Download(distDir string) (path string, err error) {
 	}
 	folderName := fmt.Sprintf("%s_%s", v.Author.Nickname, v.Author.ShortId)
 	distDir = filepath.Join(distDir, folderName, v.GetFilename())
-	log.Printf("文件名： [filename=%s]", distDir)
 	dir := filepath.Dir(distDir)
-
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return "", err
@@ -102,9 +99,9 @@ func (v *Video) Download(distDir string) (path string, err error) {
 
 			if _, err := os.Stat(imageName); !os.IsNotExist(err) {
 				log.Printf("图片本地已存在，跳过下载 [image_name=%s]", imageName)
+				continue
 			}
 
-			log.Printf("图片数据 [image_url=%s] [image_name=%s]", image.ImageUrl, imageName)
 			req, err := http.NewRequest(http.MethodGet, image.ImageUrl, nil)
 			if err != nil {
 				log.Printf("下载图像出错 -> [play_id=%s] [image_url=%s] [errmsg=%+v]", v.PlayId, image.ImageUrl, err)
@@ -128,6 +125,8 @@ func (v *Video) Download(distDir string) (path string, err error) {
 				log.Printf("保存图像出错 -> [play_id=%s] [image_url=%s]", v.PlayId, image.ImageUrl)
 				continue
 			}
+
+			log.Printf("图片数据 [image_url=%s] [image_name=%s]", image.ImageUrl, imageName)
 			time.Sleep(time.Microsecond * 110)
 		}
 		//如果是图文，需要将音频和图像放入一个目录
@@ -136,6 +135,7 @@ func (v *Video) Download(distDir string) (path string, err error) {
 
 	if _, err := os.Stat(distDir); !os.IsNotExist(err) {
 		log.Printf("视频本地已存在，[filename=%s]", distDir)
+		return distDir, nil
 	}
 
 	req, err := http.NewRequest(http.MethodGet, v.PlayAddr, nil)
@@ -156,7 +156,14 @@ func (v *Video) Download(distDir string) (path string, err error) {
 	}
 	defer f1.Close()
 	_, err = io.Copy(f1, resp.Body)
-	return distDir, err
+	if err != nil {
+		log.Printf("创建文件失败 [filename=%s] [errmsg=%+v]", distDir, err)
+		return "", err
+	}
+
+	log.Printf("写入文件成功： [filename=%s]", distDir)
+
+	return distDir, nil
 }
 
 // DownloadCover 下载封面文件
