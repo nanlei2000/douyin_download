@@ -39,6 +39,7 @@ chmod +x ./dydl
 ```
 
 ## 使用说明
+
 注意，非 windows 下，下述命令中，`.\dydl.exe` 需要替换为 `./dydl`
 
 ### 下载单个抖音作品
@@ -85,3 +86,7 @@ export WB_COOKIE = "your_weibo_cookie"
    -v, --verbose           切换 verbose 模式 (default: false)
    --help, -h              show help (default: false)
 ```
+
+## 实时同步
+
+参考 [example/sync.ps1](example/sync.ps1) 下的 powershell 脚本，按照自身需求，修改运行即可达到随时同步的目的
