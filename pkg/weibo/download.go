@@ -60,7 +60,8 @@ func (w *Weibo) DownLoad(src Source, distDir string) (err error) {
 
 	var pics []string
 	for _, id := range imageSet.IdList {
-		pics = append(pics, fmt.Sprintf("https://wx1.sinaimg.cn/large/%s.jpg", id))
+		// e.g https://wx4.sinaimg.cn/large/008s6isIgy1h93m0iw21kj30n618bwn4.jpg
+		pics = append(pics, fmt.Sprintf("https://wx4.sinaimg.cn/large/%s.jpg", id))
 	}
 
 	distDir, err = filepath.Abs(distDir)
@@ -111,6 +112,21 @@ func (w *Weibo) downloadPics(pics []string, distDir string) error {
 					return err
 				}
 				err = w.setupHeaders(req, false)
+
+				req.Header.Set("Authority", "wx4.sinaimg.cn")
+				req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+				req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6")
+				req.Header.Set("Referer", "https://weibo.com/")
+				req.Header.Set("Sec-Ch-Ua", "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Microsoft Edge\";v=\"108\"")
+				req.Header.Set("Sec-Ch-Ua-Mobile", "?0")
+				req.Header.Set("Sec-Ch-Ua-Platform", "\"Windows\"")
+				req.Header.Set("Sec-Fetch-Dest", "document")
+				req.Header.Set("Sec-Fetch-Mode", "navigate")
+				req.Header.Set("Sec-Fetch-Site", "cross-site")
+				req.Header.Set("Sec-Fetch-User", "?1")
+				req.Header.Set("Upgrade-Insecure-Requests", "1")
+				req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.46")
+
 				if err != nil {
 					return err
 				}
@@ -130,6 +146,11 @@ func (w *Weibo) downloadPics(pics []string, distDir string) error {
 				if err != nil {
 					return err
 				}
+
+				if resp.StatusCode >= 400 {
+					return fmt.Errorf("http status code err: %d", resp.StatusCode)
+				}
+
 				defer resp.Body.Close()
 
 				f, err := os.Create(filePath)
