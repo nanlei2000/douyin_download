@@ -4,7 +4,7 @@
 [![Release cmd/dydl](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml/badge.svg)](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/nanlei2000/douyin_download.svg)](https://pkg.go.dev/github.com/nanlei2000/douyin_download)
 
-下载抖音无水印视频、图片，微博原图的命令行工具
+下载抖音无水印视频、图片，微博原图的命令行工具，支持 Windows、MacOS 和 Linux 平台
 
 ## 免责声明
 
