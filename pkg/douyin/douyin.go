@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"strings"
+	"runtime/debug"
 
 	iteminfo "github.com/nanlei2000/douyin_download/pkg/model/item_info"
 )
@@ -17,8 +17,10 @@ var (
 	urlReg           = regexp.MustCompile(`http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`)
 	digitReg         = regexp.MustCompile(`\d+`)
 	DefaultUserAgent = `Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1`
-	relRrlStr        = `https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=`
+	videoDetailApi   = `https://www.iesdouyin.com/aweme/v1/web/aweme/detail/?aweme_id=`
 )
+
+// https://www.iesdouyin.com/aweme/v1/web/aweme/detail/?aweme_id=7172724205438373157
 
 type SourceType uint
 
@@ -71,7 +73,7 @@ func (d *DouYin) GetRedirectUrl(urlStr string) (string, error) {
 	if result == "" {
 		return "", errors.New("解析参数失败 ->" + string(body))
 	}
-	return relRrlStr + result, nil
+	return videoDetailApi + result, nil
 }
 
 func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
@@ -79,7 +81,7 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("User-Agent", DefaultUserAgent)
+	req.Header = SetupHeaders()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
@@ -98,7 +100,7 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 func (d *DouYin) Get(src Source) (v Video, err error) {
 	defer func() {
 		if pErr := recover(); pErr != nil {
-			log.Printf("[DouYin.Get]panic, src: %v,err: %v", src, pErr)
+			log.Printf("[DouYin.Get]panic, src: %v,err: %v, stack: %s", src, pErr, debug.Stack())
 			err = fmt.Errorf("%s", pErr)
 		}
 	}()
@@ -118,7 +120,7 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 			return Video{}, err
 		}
 	case SourceType_VideoID:
-		rawUrlStr = fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=%s", src.Content)
+		rawUrlStr = fmt.Sprintf("%s%s", videoDetailApi, src.Content)
 	default:
 		return Video{}, fmt.Errorf("unsupported src type")
 	}
@@ -140,7 +142,7 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 		return Video{}, fmt.Errorf("resp err, resp: %s", body)
 	}
 
-	item := info.ItemList[0]
+	item := info.AwemeDetail
 	video := Video{
 		RawLink:      shardContent,
 		VideoRawAddr: urlStr,
@@ -148,30 +150,27 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 		Images:       []ImageItem{},
 	}
 
-	video.PlayAddr = strings.ReplaceAll(item.Video.PlayAddr.URLList[0], "playwm", "play")
-
-	//获取播放时长，视频有播放时长，图文类无播放时长
+	// 获取播放时长，视频有播放时长，图文类无播放时长
 	if item.Duration != 0 {
 		video.VideoType = VideoPlayType
+		video.PlayAddr = item.Video.PlayAddr.URLList[0]
 	} else {
-		video.VideoType = ImagePlayType
-		images := item.Images
-		for _, image := range images {
-			imageRes := image.URLList[0]
-			video.Images = append(video.Images, ImageItem{
-				ImageUrl: imageRes,
-				ImageId:  image.URI,
-			})
-		}
+		// TODO: api 不支持图文，待实现
+		// video.VideoType = ImagePlayType
+		// images := item.Images
+		// for _, image := range images {
+		// 	imageRes := image.URLList[0]
+		// 	video.Images = append(video.Images, ImageItem{
+		// 		ImageUrl: imageRes,
+		// 		ImageId:  image.URI,
+		// 	})
+		// }
+		return Video{}, fmt.Errorf("暂不支持图文")
 	}
 	//获取播放地址
 	video.PlayId = item.Video.PlayAddr.URI
 	//获取视频唯一id
 	video.VideoId = item.AwemeID
-	//获取封面
-	video.Cover = item.Video.Cover.URLList[0]
-	//获取原始封面
-	video.OriginCover = item.Video.OriginCover.URLList[0]
 	//获取作者信息
 	video.Author.Id = item.Author.Uid
 	video.Author.ShortId = item.Author.ShortID
@@ -179,8 +178,6 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 	video.Author.Signature = item.Author.Signature
 	//获取视频描述
 	video.Desc = item.Desc
-	//获取作者大头像
-	video.Author.AvatarLarger = item.Author.AvatarLarger.URLList[0]
 	d.printf("解析后数据 [video=%s]", video.String())
 
 	return video, nil

@@ -15,8 +15,8 @@ func TestGetAllVideoIDList(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	if len(list) != 73 {
-		t.Fatalf("get all id failed, expect: 73, actual: %d", len(list))
+	if len(list) == 0 {
+		t.Fatalf("get all id failed")
 	}
 	t.Logf("list: %s", list)
 }

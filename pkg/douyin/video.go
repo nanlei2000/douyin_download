@@ -16,6 +16,7 @@ import (
 	"github.com/nanlei2000/douyin_download/internal/utils"
 )
 
+// VideoType 视频类型
 type VideoType int
 
 const (
@@ -25,14 +26,13 @@ const (
 	ImagePlayType VideoType = 1
 )
 
+// Video 抖音视频
 type Video struct {
 	VideoId         string   `json:"video_id"`
 	PlayId          string   `json:"play_id"`
 	PlayAddr        string   `json:"play_addr"`
 	VideoRawAddr    string   `json:"video_raw_addr"`
 	PlayRawAddr     string   `json:"play_raw_addr"`
-	Cover           string   `json:"cover"`
-	OriginCover     string   `json:"origin_cover"`
 	OriginCoverList []string `json:"origin_cover_list"`
 	Desc            string   `json:"desc"`
 	RawLink         string   `json:"raw_link"`
