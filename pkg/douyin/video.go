@@ -31,8 +31,6 @@ type Video struct {
 	PlayAddr        string   `json:"play_addr"`
 	VideoRawAddr    string   `json:"video_raw_addr"`
 	PlayRawAddr     string   `json:"play_raw_addr"`
-	Cover           string   `json:"cover"`
-	OriginCover     string   `json:"origin_cover"`
 	OriginCoverList []string `json:"origin_cover_list"`
 	Desc            string   `json:"desc"`
 	RawLink         string   `json:"raw_link"`

@@ -21,10 +21,10 @@ func (d *DouYin) GetAllVideoIDList(secUid string) ([]string, error) {
 			break
 		}
 
-		apiURL := fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=%s&count=%d&max_cursor=%d&aid=1128", secUid, count, cursor)
+		//  'https://www.iesdouyin.com/aweme/v1/web/aweme/post/?sec_user_id=%s&count=35&max_cursor=0&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333'
+		apiURL := fmt.Sprintf("https://www.iesdouyin.com/aweme/v1/web/aweme/post/?sec_user_id=%s&count=%d&max_cursor=%d&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333", secUid, count, cursor)
 		req, err := http.NewRequest(http.MethodGet, apiURL, nil)
-
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.46")
+		req.Header = SetupHeaders()
 
 		if err != nil {
 			log.Printf("fail to get post, secUid: %s, err: %s", secUid, err)
