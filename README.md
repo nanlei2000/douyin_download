@@ -1,4 +1,4 @@
-# douyi_download
+# douyin_download
 
 [![Go](https://github.com/nanlei2000/douyi_download/actions/workflows/go.yml/badge.svg)](https://github.com/nanlei2000/douyi_download/actions/workflows/go.yml)
 [![Release cmd/dydl](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml/badge.svg)](https://github.com/nanlei2000/douyi_download/actions/workflows/release.yml)
