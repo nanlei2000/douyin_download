@@ -81,7 +81,7 @@ func (d *DouYin) GetVideoInfo(urlStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("User-Agent", DefaultUserAgent)
+	req.Header = SetupHeaders()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
