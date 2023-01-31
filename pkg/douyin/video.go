@@ -16,6 +16,7 @@ import (
 	"github.com/nanlei2000/douyin_download/internal/utils"
 )
 
+// VideoType 视频类型
 type VideoType int
 
 const (
@@ -25,6 +26,7 @@ const (
 	ImagePlayType VideoType = 1
 )
 
+// Video 抖音视频
 type Video struct {
 	VideoId         string   `json:"video_id"`
 	PlayId          string   `json:"play_id"`
