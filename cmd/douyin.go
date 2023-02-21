@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -25,18 +24,7 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 	// https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
 	if downloadUserPost {
 		userLink := c.Args().Get(0)
-		url, err := url.Parse(userLink)
-		if err != nil {
-			return err
-		}
-		parts := strings.Split(url.Path, "/")
-		secUid := parts[len(parts)-1]
-
-		if len(secUid) == 0 {
-			return fmt.Errorf("url is invalid")
-		}
-
-		idList, err := dy.GetAllVideoIDList(secUid)
+		idList, err := dy.GetAllVideoIDList(userLink)
 
 		if err != nil {
 			return err
@@ -57,7 +45,7 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 				}()
 
 				run := func() error {
-					ran := rand.Int31n(100)
+					ran := rand.Int31n(100) + 200
 					time.Sleep(time.Duration(ran) * time.Millisecond)
 
 					video, err := dy.Get(douyin.Source{
