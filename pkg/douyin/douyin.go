@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"runtime/debug"
+	"time"
 
 	iteminfo "github.com/nanlei2000/douyin_download/pkg/model/item_info"
 )
@@ -125,19 +126,29 @@ func (d *DouYin) Get(src Source) (v Video, err error) {
 		return Video{}, fmt.Errorf("unsupported src type")
 	}
 
-	body, err := d.GetVideoInfo(rawUrlStr)
-	if err != nil {
-		return Video{}, err
-	}
-	d.printf("获取抖音视频成功 -> [resp=%s]", body)
-
 	var info iteminfo.ItemInfo
+	var lastErr error
+	var body string
+	for i := 0; i < 10; i++ {
+		body, err := d.GetVideoInfo(rawUrlStr)
+		if err != nil {
+			return Video{}, err
+		}
+		err = json.Unmarshal([]byte(body), &info)
 
-	err = json.Unmarshal([]byte(body), &info)
+		if err != nil {
+			lastErr = err
+			time.Sleep(200 * time.Microsecond)
+		} else {
+			d.printf("获取抖音视频成功 -> [resp=%s]", body)
+			break
+		}
+	}
 
 	if err != nil {
-		return Video{}, err
+		return Video{}, lastErr
 	}
+
 	if info.StatusCode != 0 {
 		return Video{}, fmt.Errorf("resp err, resp: %s", body)
 	}

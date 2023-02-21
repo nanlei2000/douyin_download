@@ -50,7 +50,7 @@ func TestVideo_Download_FromID(t *testing.T) {
 	dy.isDebug = true
 	video, err := dy.Get(Source{
 		Type:    SourceType_VideoID,
-		Content: `7015482603633511683`,
+		Content: `7015873671797411111`,
 	})
 	if err != nil {
 		t.Fatal(err)
