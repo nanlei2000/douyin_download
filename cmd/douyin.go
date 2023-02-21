@@ -45,7 +45,7 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 				}()
 
 				run := func() error {
-					ran := rand.Int31n(100) + 200
+					ran := rand.Int31n(100) + 500
 					time.Sleep(time.Duration(ran) * time.Millisecond)
 
 					video, err := dy.Get(douyin.Source{

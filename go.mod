@@ -3,6 +3,7 @@ module github.com/nanlei2000/douyin_download
 go 1.18
 
 require (
+	github.com/corpix/uarand v0.2.0
 	github.com/go-rod/rod v0.112.6
 	github.com/urfave/cli/v2 v2.6.0
 

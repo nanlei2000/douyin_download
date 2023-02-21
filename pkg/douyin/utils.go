@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+
+	"github.com/corpix/uarand"
 )
 
 func genRandomStr(length int) string {
@@ -19,7 +21,7 @@ func genRandomStr(length int) string {
 
 func SetupHeaders() http.Header {
 	h := http.Header{}
-	h.Add("User-Agent", DefaultUserAgent)
+	h.Add("User-Agent", uarand.GetRandom())
 	h.Add("Cookie", fmt.Sprintf("msToken=%s", genRandomStr(107)))
 
 	return h
