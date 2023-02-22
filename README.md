@@ -6,6 +6,8 @@
 
 下载抖音无水印视频、图片，微博原图的命令行工具，支持 Windows、MacOS 和 Linux 平台
 
+## [发布记录](https://github.com/nanlei2000/douyi_download/releases)
+
 ## 免责声明
 
 - 本项目纯属个人爱好创作
