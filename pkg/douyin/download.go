@@ -22,7 +22,7 @@ type Video struct {
 // https://www.douyin.com/aweme/v1/play/?video_id=v0d00fg10000cfukpcbc77u4ta5n9mk0&line=0&file_id=b1e06183b7cb4268a3b10e9cffa0d68d&sign=2404e9d800a44f5f8878cc758704c36d&is_play_url=1&source=PackSourceEnum_AWEME_DETAIL&aid=6383
 
 // Download 下载视频
-func DownloadVideo(v Video, distDir string) (path string, err error) {
+func DownloadVideo(v *Video, distDir string) (path string, err error) {
 	defer func() {
 		if pErr := recover(); pErr != nil {
 			log.Printf("出现panic, filename: %s, err: %s", distDir, err)

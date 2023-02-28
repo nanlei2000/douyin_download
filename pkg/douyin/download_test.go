@@ -16,5 +16,5 @@ func TestVideo_Download_FromID(t *testing.T) {
 			Nickname: "test",
 		},
 	}
-	DownloadVideo(v, "./video")
+	DownloadVideo(&v, "./video")
 }

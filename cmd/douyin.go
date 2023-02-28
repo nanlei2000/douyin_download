@@ -45,23 +45,13 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 					ran := rand.Int31n(100) + 500
 					time.Sleep(time.Duration(ran) * time.Millisecond)
 
-					playAddr, err := douyin.GetPlayAddr(id)
+					v, err := douyin.GetVideoDetail(id)
+					fmt.Printf("video detail: %v \n", v)
 					if err != nil {
 						return err
 					}
-					video := douyin.Video{
-						VideoId:  id,
-						PlayAddr: playAddr,
-						Author: struct {
-							SecUid   string
-							Nickname string
-						}{
-							SecUid:   "TestSecUid",
-							Nickname: "TestNickname",
-						},
-					}
 
-					_, err = douyin.DownloadVideo(video, path)
+					_, err = douyin.DownloadVideo(v, path)
 					if err != nil {
 						return fmt.Errorf("download video failed, id: %s, err: %s", id, err)
 					}

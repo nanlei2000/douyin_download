@@ -3,7 +3,7 @@ package douyin
 import "testing"
 
 func TestGetPlayAddr(t *testing.T) {
-	playStr, err := GetPlayAddr("7204783511956442372")
+	playStr, err := GetVideoDetail("7015482603633511683")
 	if err != nil {
 		t.Log(err)
 	}
