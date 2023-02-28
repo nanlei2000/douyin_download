@@ -18,13 +18,11 @@ const (
 )
 
 func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path string) error {
-	dy := douyin.NewDouYin()
-	dy.IsDebug(verbose)
-
+	defer douyin.Browser.MustClose()
 	// https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1
 	if downloadUserPost {
 		userLink := c.Args().Get(0)
-		idList, err := dy.GetAllVideoIDList(userLink)
+		idList, err := douyin.GetAllVideoIDList(userLink)
 
 		if err != nil {
 			return err
@@ -48,14 +46,13 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 					ran := rand.Int31n(100) + 500
 					time.Sleep(time.Duration(ran) * time.Millisecond)
 
-					video, err := dy.Get(douyin.Source{
-						Type:    douyin.SourceType_VideoID,
-						Content: id,
-					})
+					v, err := douyin.GetVideoDetail(id)
+					fmt.Printf("video detail: %#v \n", v)
 					if err != nil {
-						return fmt.Errorf("get video info failed, id: %s, err: %s", id, err)
+						return err
 					}
-					_, err = video.Download(path)
+
+					_, err = douyin.DownloadVideo(v, path)
 					if err != nil {
 						return fmt.Errorf("download video failed, id: %s, err: %s", id, err)
 					}
@@ -83,18 +80,20 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 	}
 
 	// use shardContent
-	shareContent := strings.Join(c.Args().Slice(), "")
-
-	video, err := dy.Get(douyin.Source{
-		Type:    douyin.SourceType_ShardContent,
-		Content: shareContent,
-	})
+	link := strings.Join(c.Args().Slice(), "")
+	id, err := douyin.GetVideoIDBySharedLink(link)
 	if err != nil {
 		return err
 	}
-	_, err = video.Download(path)
+	v, err := douyin.GetVideoDetail(id)
+	fmt.Printf("video detail: %#v \n", v)
 	if err != nil {
 		return err
+	}
+
+	_, err = douyin.DownloadVideo(v, path)
+	if err != nil {
+		return fmt.Errorf("download video failed, id: %s, err: %s", id, err)
 	}
 
 	return nil

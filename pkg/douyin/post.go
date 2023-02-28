@@ -3,15 +3,10 @@ package douyin
 import (
 	"fmt"
 	"strings"
-
-	"github.com/go-rod/rod"
 )
 
-func (d *DouYin) GetAllVideoIDList(userLink string) ([]string, error) {
-	browser := rod.New().MustConnect()
-	defer browser.MustClose()
-
-	page := browser.MustPage(userLink)
+func GetAllVideoIDList(userLink string) ([]string, error) {
+	page := Browser.MustIncognito().MustPage(userLink)
 	wait := page.MustWaitRequestIdle()
 	wait()
 
@@ -27,7 +22,6 @@ func (d *DouYin) GetAllVideoIDList(userLink string) ([]string, error) {
 		if strings.Contains(html, "暂时没有更多了") {
 			break
 		}
-
 	}
 
 	target := page.MustElements(`a[href^="/video/"]`)
