@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// TODO: 使用 race api
 func GetVideoDetail(videoID string) (*Video, error) {
 	page := Browser.MustIncognito().MustPage(fmt.Sprintf("https://www.douyin.com/video/%s", videoID))
 	wait := page.MustWaitRequestIdle()

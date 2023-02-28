@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
 
@@ -46,7 +47,7 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 					time.Sleep(time.Duration(ran) * time.Millisecond)
 
 					v, err := douyin.GetVideoDetail(id)
-					fmt.Printf("video detail: %v \n", v)
+					fmt.Printf("video detail: %#v \n", v)
 					if err != nil {
 						return err
 					}
@@ -78,20 +79,22 @@ func HandleDouyinCmd(c *cli.Context, verbose bool, downloadUserPost bool, path s
 		return nil
 	}
 
-	// // use shardContent
-	// shareContent := strings.Join(c.Args().Slice(), "")
+	// use shardContent
+	link := strings.Join(c.Args().Slice(), "")
+	id, err := douyin.GetVideoIDBySharedLink(link)
+	if err != nil {
+		return err
+	}
+	v, err := douyin.GetVideoDetail(id)
+	fmt.Printf("video detail: %#v \n", v)
+	if err != nil {
+		return err
+	}
 
-	// video, err := dy.Get(douyin.Source{
-	// 	Type:    douyin.SourceType_ShardContent,
-	// 	Content: shareContent,
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err = video.Download(path)
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = douyin.DownloadVideo(v, path)
+	if err != nil {
+		return fmt.Errorf("download video failed, id: %s, err: %s", id, err)
+	}
 
 	return nil
 }
