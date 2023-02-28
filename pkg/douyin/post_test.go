@@ -6,10 +6,9 @@ import (
 )
 
 func TestGetAllVideoIDList(t *testing.T) {
-	dy := NewDouYin()
-	dy.isDebug = true
+	defer Browser.Close()
 
-	list, err := dy.GetAllVideoIDList("https://www.douyin.com/user/MS4wLjABAAAAZimxk0o3KWTEJNNrzwSF3HBjCy4TkS6mpPyHNxEYC2A?relation=1")
+	list, err := GetAllVideoIDList("https://www.douyin.com/user/MS4wLjABAAAApISbVdbu_OzxCWeq75MzzWcqtd8sSa8hNUvizQpvIBg")
 
 	if err != nil {
 		t.Fatalf("err: %s", err)

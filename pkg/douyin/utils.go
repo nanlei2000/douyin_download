@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/corpix/uarand"
+	"github.com/go-rod/rod"
 )
 
 func genRandomStr(length int) string {
@@ -25,4 +26,10 @@ func SetupHeaders() http.Header {
 	h.Add("Cookie", fmt.Sprintf("msToken=%s", genRandomStr(107)))
 
 	return h
+}
+
+var Browser *rod.Browser
+
+func init() {
+	Browser = rod.New().MustConnect()
 }
